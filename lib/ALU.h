@@ -4,10 +4,13 @@
 class ALU {
 public:
     template<class T>
-    T add(const T &a, const T &b) { return a + b; }
+    inline T add(const T &a, const T &b) { return a + b; }
 
     template<class T>
-    T subtract(const T &a, const T &b) { return a - b; }
+    inline T subtract(const T &a, const T &b) { return a - b; }
+
+    template<class T>
+    inline bool cmp(const T &a, const T &b) { return a < b; }
 
 };
 
