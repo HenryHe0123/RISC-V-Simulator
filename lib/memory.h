@@ -13,7 +13,7 @@ public:
 
     inline void writeByte(unsigned pos, uint8_t byte) { mem[pos] = byte; }
 
-    inline unsigned readInt(unsigned pos) {
+    inline unsigned readU32(unsigned pos) {
         unsigned val = mem[pos];
         val = (val << 8) | mem[++pos];
         val = (val << 8) | mem[++pos];

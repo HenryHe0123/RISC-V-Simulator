@@ -3,4 +3,10 @@ project(RISC_V_simulator)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(code main.cpp lib/register.h lib/memory.h cpu.h lib/decoder.h)
+add_executable(code
+        main.cpp
+        lib/register.h
+        lib/memory.h
+        cpu.h
+        lib/decoder.h
+        lib/ALU.h)
