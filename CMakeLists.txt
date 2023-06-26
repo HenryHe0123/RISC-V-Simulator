@@ -9,4 +9,6 @@ add_executable(code
         lib/memory.h
         cpu.h
         lib/decoder.h
-        lib/ALU.h)
+        lib/ALU.h
+        lib/ReservedStation.h
+        lib/ReorderBuffer.h)
