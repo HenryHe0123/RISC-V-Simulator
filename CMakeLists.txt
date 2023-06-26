@@ -11,4 +11,5 @@ add_executable(code
         lib/decoder.h
         lib/ALU.h
         lib/ReservedStation.h
-        lib/ReorderBuffer.h)
+        lib/ReorderBuffer.h
+        lib/queue.h)

@@ -10,10 +10,10 @@ public:
     inline T subtract(const T &a, const T &b) { return a - b; }
 
     template<class T>
-    inline bool cmp(const T &a, const T &b) { return a < b; }
+    inline bool cmp(const T &a, const T &b) { return a < b; } //return a < b
 
     template<class T>
-    inline bool same(const T &a, const T &b) { return a == b; } //check if a == b
+    inline bool same(const T &a, const T &b) { return a == b; } //return a == b
 
 };
 

@@ -3,7 +3,7 @@
 CPU cpu;
 
 int main() {
-    cpu.init();
+    cpu.scan();
     cpu.process();
     return 0;
 }

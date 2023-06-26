@@ -25,7 +25,7 @@ public:
 
     void refresh() { memcpy(entries, nextEntries, sizeof(entries)); }
 
-    void clear(); //won't clear ROB pointer
+    void clear() { for (RSEntry &entry: nextEntries) entry.empty = true; }
 
     bool addEntry(const RSEntry &entry);
 
@@ -37,11 +37,6 @@ private:
     ALU cALU; //common ALU (physically one by one)
     ReorderBuffer *ROB = nullptr;
 };
-
-void ReservedStation::clear() {
-    for (RSEntry &entry: entries) entry.empty = true;
-    for (RSEntry &entry: nextEntries) entry.empty = true;
-}
 
 bool ReservedStation::addEntry(const RSEntry &entry) {
     for (int i = 0; i < RSEntrySize; ++i) {

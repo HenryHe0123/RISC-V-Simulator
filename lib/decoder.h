@@ -47,15 +47,20 @@ enum InstructionOPT {
     HALT    // End of Main 0x0ff00513
 };
 
-enum InstructionType { NULL, MEM, BRANCH, REG, END};
+enum InstructionType { NUL, MEM, BRANCH, REG, END};
 
 InstructionType OPTtype(InstructionOPT opt) {
-    if(opt == 0) return NULL;
+    if(opt == 0) return NUL;
     else if(opt <= 8) return MEM;
     else if(opt <= 16) return BRANCH;
     else if(opt <= 37) return REG;
     else return END;
 }
 
+struct Instruction {
+    InstructionOPT opt = NONE;
+    unsigned reg1 = 0, reg2 = 0, dest = 0;
+    unsigned imm = 0; //immediate number
+};
 
 #endif //RISC_V_SIMULATOR_DECODER_H

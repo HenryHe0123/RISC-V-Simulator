@@ -1,16 +1,48 @@
 #ifndef RISC_V_SIMULATOR_REORDER_BUFFER_H
 #define RISC_V_SIMULATOR_REORDER_BUFFER_H
 
-#include <queue>
+#include "queue.h"
 #include "decoder.h"
 
 struct ROBEntry {
     bool ready = false;
-    InstructionOPT opt;
+    bool predict = false;
+    InstructionOPT opt = NONE;
+    unsigned dest = 0; //reg index for load or ALU operations, memory address for store
+    unsigned value = 0; //result value
 };
 
 class ReorderBuffer {
+public:
+    inline void clear() { nextBuffer.clear(); }
 
+    inline void refresh() { buffer = nextBuffer; }
+
+    inline bool full() { return buffer.full(); }
+
+    void tryCommit();
+
+private:
+    Queue<ROBEntry> buffer;
+    Queue<ROBEntry> nextBuffer;
 };
+
+void ReorderBuffer::tryCommit() {
+    if(buffer.empty()) return;
+    if(!buffer.front().ready) return;
+    switch (OPTtype(buffer.front().opt)) {
+        case InstructionType::MEM:
+            break;
+        case InstructionType::BRANCH:
+            break;
+        case InstructionType::REG:
+            break;
+        case InstructionType::END:
+            break;
+        default: //NUL
+            throw 0;
+    }
+    nextBuffer.pop();
+}
 
 #endif //RISC_V_SIMULATOR_REORDER_BUFFER_H

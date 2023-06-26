@@ -10,10 +10,8 @@ using namespace std;
 
 class CPU {
 public:
-    RAM ram;
-    Register reg;
 
-    void init() {
+    void scan() {
         string line;
         int addr = 0;
         while (getline(cin, line)) {
@@ -25,11 +23,15 @@ public:
     }
 
     void process() {
-
+        while (true) {
+            cycle++;
+            run();
+        }
     }
 
 private:
-
+    int cycle = 0;
+    RAM ram;
 };
 
 
