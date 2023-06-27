@@ -75,8 +75,7 @@ public:
             res.opt = HALT;
             return res;
         }
-        unsigned opcode = getOpcode(ins);
-        res.opt = getOPT(opcode, getFunc3(ins), getFunc7(ins));
+        res.opt = getOPT(getOpcode(ins), getFunc3(ins), getFunc7(ins));
         Type type = Types[res.opt];
         res.imm = getImm(type, ins);
         res.rd = getRd(type, ins);

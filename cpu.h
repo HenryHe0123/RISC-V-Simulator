@@ -12,6 +12,9 @@ using std::stoi;
 
 class CPU {
 public:
+    unsigned cycle = 0;
+
+    CPU() = default;
 
     void scan() {
         string line;
@@ -25,15 +28,27 @@ public:
     }
 
     void process() {
-        while (true) {
-            cycle++;
-            run();
+        bool flag = true;
+        while (flag) {
+            issue();
+            execute();
+            flag = commit();
+            ++cycle;
+            flush();
         }
     }
 
 private:
-    int cycle = 0;
     RAM ram;
+
+    void issue();
+
+    void execute();
+
+    bool commit();
+
+    void flush();
+
 };
 
 

@@ -12,4 +12,6 @@ add_executable(code
         lib/ALU.h
         lib/ReservedStation.h
         lib/ReorderBuffer.h
-        lib/queue.h)
+        lib/queue.h
+        lib/InstructionUnit.h
+        lib/predictor.h)

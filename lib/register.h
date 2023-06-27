@@ -5,51 +5,43 @@
 
 extern const int regSize = 32;
 
-class RegisterFile;
+struct Register {
+    unsigned value = 0, tag = -1;
+    bool valid = true;
 
-class Register {
-    friend class RegisterFile;
-
-    friend void updateRegister(Register &, const RegisterFile &);
-
-public:
-    unsigned pc = 0;
-
-    Register() = default;
-
-    //inline unsigned &operator[](int i) { return reg[i]; }
-
-    inline void move_pc(unsigned offset) { pc += offset; }
-
-    inline void assign_pc(unsigned addr) { pc = addr; }
-
-    inline void update_pc() { pc += 4; }
-
-private:
-    unsigned reg[regSize]{0}; //reg[0] should always keep 0
+    inline void reset() {
+        value = 0;
+        tag = -1;
+        valid = true;
+    }
 };
 
 class RegisterFile {
 public:
-    bool valid[regSize]{};
-    unsigned reg[regSize]{0};
-    unsigned tag[regSize]{0};
+    void refresh() { memcpy(regs, nextRegs, sizeof(regs)); }
 
-    RegisterFile() { memset(valid, -1, sizeof(valid)); };
+    void clear() { for (auto &r: nextRegs) r.reset(); }
 
-    explicit RegisterFile(const Register &r) {
-        memset(valid, -1, sizeof(valid));
-        memcpy(reg, r.reg, sizeof(reg));
+    void write(unsigned id, unsigned val, unsigned dependency = -2) {
+        if (id && id < regSize) {
+            nextRegs[id].value = val;
+            if (nextRegs[id].tag == dependency || dependency == -2) nextRegs[id].valid = true;
+        }
     }
 
-    inline void reinit(const Register &r) {
-        memset(valid, -1, sizeof(valid));
-        memcpy(reg, r.reg, sizeof(reg));
+    void aboutToWrite(unsigned id, unsigned dependency) {
+        if (id && id < regSize) {
+            nextRegs[id].valid = false;
+            nextRegs[id].tag = dependency;
+        }
     }
+
+    [[nodiscard]] bool dirty(unsigned id) const { return !regs[id].valid; }
+
+private:
+    Register regs[regSize]{};
+    Register nextRegs[regSize]{};
 };
 
-inline void updateRegister(Register &r, const RegisterFile &regFile) {
-    memcpy(r.reg, regFile.reg, sizeof(r.reg));
-}
 
 #endif //RISC_V_SIMULATOR_REGISTER_H
