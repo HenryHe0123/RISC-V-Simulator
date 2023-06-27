@@ -36,7 +36,7 @@ public:
         }
     }
 
-    [[nodiscard]] bool dirty(unsigned id) const { return !regs[id].valid; }
+    [[nodiscard]] bool valid(unsigned id) const { return regs[id].valid; }
 
 private:
     Register regs[regSize]{};

@@ -16,12 +16,14 @@ public:
 
     Queue &operator=(Queue &&) noexcept = default;
 
-    inline void push(const T &val) {
+    inline void push_back(const T &val) {
         q[tail] = val;
         tail = (tail + 1) % size;
     }
 
-    inline void pop() { head = (head + 1) % size; }
+    inline void pop_front() { head = (head + 1) % size; }
+
+    inline void pop_back() { tail = (tail - 1 + size) % size; }
 
     inline void clear() { head = tail = 0; }
 

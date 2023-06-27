@@ -4,7 +4,8 @@
 #include <cstring>
 #include "decoder.h"
 #include "ALU.h"
-#include "ReorderBuffer.h"
+
+class ReorderBuffer;
 
 extern const int RSEntrySize = 32;
 

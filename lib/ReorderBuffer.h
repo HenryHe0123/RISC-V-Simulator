@@ -3,6 +3,8 @@
 
 #include "queue.h"
 #include "decoder.h"
+#include "register.h"
+#include "ReservedStation.h"
 
 struct ROBEntry {
     bool ready = false;
@@ -10,6 +12,7 @@ struct ROBEntry {
     InstructionOPT opt = NONE;
     unsigned dest = 0; //reg index for load or ALU operations, memory address for store
     unsigned value = 0; //result value
+    //for BRANCH instruction, dest for predict pc, value for other pc branch
 
     [[nodiscard]] inline bool dest_for_reg() const { return OPTtype(opt) == REG || opt <= LHU && opt; }
 
@@ -18,6 +21,10 @@ struct ROBEntry {
 
 class ReorderBuffer {
 public:
+    inline void init(RegisterFile *registerFile_) {
+        registerFile = registerFile_;
+    }
+
     inline void clear() { nextBuffer.clear(); }
 
     inline void refresh() { buffer = nextBuffer; }
@@ -26,9 +33,12 @@ public:
 
     void tryCommit();
 
+    void add();
+
 private:
     Queue<ROBEntry> buffer;
     Queue<ROBEntry> nextBuffer;
+    RegisterFile *registerFile = nullptr;
 };
 
 void ReorderBuffer::tryCommit() {
@@ -46,7 +56,7 @@ void ReorderBuffer::tryCommit() {
         default: //NUL
             throw 0;
     }
-    nextBuffer.pop();
+    nextBuffer.pop_front();
 }
 
 #endif //RISC_V_SIMULATOR_REORDER_BUFFER_H
