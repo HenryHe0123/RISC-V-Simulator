@@ -33,7 +33,7 @@ public:
 
     void tryCommit();
 
-    void add();
+    int add(const ROBEntry &entry); //return ROB entry index
 
 private:
     Queue<ROBEntry> buffer;
@@ -57,6 +57,14 @@ void ReorderBuffer::tryCommit() {
             throw 0;
     }
     nextBuffer.pop_front();
+}
+
+int ReorderBuffer::add(const ROBEntry &entry) {
+    nextBuffer.push_back(entry);
+    if (OPTtype(entry.opt) == REG) {
+        registerFile->aboutToWrite(entry.dest, nextBuffer.back_index());
+    }
+    return nextBuffer.back_index();
 }
 
 #endif //RISC_V_SIMULATOR_REORDER_BUFFER_H

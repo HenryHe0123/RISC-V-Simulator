@@ -21,7 +21,6 @@ public:
     void issue();
 
 private:
-    Decoder decoder;
     ReorderBuffer *ROB = nullptr;
     ReservedStation *RS = nullptr;
     RAM *ram = nullptr;
@@ -30,6 +29,8 @@ private:
 void InstructionUnit::issue() {
     if (stall) return;
     if (ROB->full()) return;
+    unsigned ins = ram->readU32(pc); //fetch
+    Instruction instruction = Decoder::decode(ins); //decode
 
 }
 

@@ -12,7 +12,7 @@
 
 在未stall且ROB未满的情况下，由Instruction Unit从RAM中读取指令并调用Decoder解码，向ROB申请新位置。
 
-若为REG类指令，新建RSEntry并发射到RS上；若为MEM/END类指令，直接写到ROB上；若为BRANCH指令，新建RSEntry把计算任务发射到RS上，预测更新pc（其他指令也要正常更新pc）
+若为REG类指令，修改RegisterFile的dependency，新建RSEntry并发射到RS上；若为MEM/END类指令，直接写到ROB上；若为BRANCH指令，新建RSEntry把计算任务发射到RS上，预测更新pc（其他指令也要正常更新pc）
 
 在发射到RS的过程中，如果发现RS已满，则暂停等待（pop新申请的ROBEntry）
 

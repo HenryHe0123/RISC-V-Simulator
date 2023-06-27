@@ -19,9 +19,9 @@ enum InstructionOPT {
     BGE,    // B    Branch Greater than or Equal
     BLTU,   // B    Branch Less than Unsigned
     BGEU,   // B    Branch Greater than or Equal Unsigned
+    //---------REG------------//
     JAL,    // J    Jump & Link
     JALR,   // I    Jump & Link Register
-    //---------REG------------//
     LUI,    // U    Load Upper Immediate
     AUIPC,  // U    Add Upper Immediate to PC
     ADDI,   // I    ADD Immediate
@@ -54,7 +54,7 @@ enum InstructionType {
 InstructionType OPTtype(InstructionOPT opt) {
     if (opt == 0) return NUL;
     else if (opt <= 8) return MEM;
-    else if (opt <= 16) return BRANCH;
+    else if (opt <= 14) return BRANCH;
     else if (opt <= 37) return REG;
     else return END;
 }
@@ -89,7 +89,7 @@ private:
         return (high == 31) ? uint >> low : (uint & (1u << (high + 1)) - 1) >> low;
     }
 
-    inline static unsigned sext(unsigned uint, int top) { //if top digit 1, add 1
+    inline static unsigned sext(unsigned uint, int top) { //sign-extend: if top digit 1, add 1
         return (uint & (1 << top)) ? uint | -(1 << top) : uint;
     }
 
