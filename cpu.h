@@ -6,7 +6,9 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
+using std::string;
+using std::cin;
+using std::stoi;
 
 class CPU {
 public:

@@ -10,6 +10,10 @@ struct ROBEntry {
     InstructionOPT opt = NONE;
     unsigned dest = 0; //reg index for load or ALU operations, memory address for store
     unsigned value = 0; //result value
+
+    [[nodiscard]] inline bool dest_for_reg() const { return OPTtype(opt) == REG || opt <= LHU && opt; }
+
+    [[nodiscard]] inline bool dest_for_memory() const { return opt >= SB && opt <= SW; }
 };
 
 class ReorderBuffer {
@@ -28,8 +32,8 @@ private:
 };
 
 void ReorderBuffer::tryCommit() {
-    if(buffer.empty()) return;
-    if(!buffer.front().ready) return;
+    if (buffer.empty()) return;
+    if (!buffer.front().ready) return;
     switch (OPTtype(buffer.front().opt)) {
         case InstructionType::MEM:
             break;

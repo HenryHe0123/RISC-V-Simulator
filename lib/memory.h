@@ -14,11 +14,8 @@ public:
     inline void writeByte(unsigned pos, uint8_t byte) { mem[pos] = byte; }
 
     inline unsigned readU32(unsigned pos) {
-        unsigned val = mem[pos];
-        val = (val << 8) | mem[++pos];
-        val = (val << 8) | mem[++pos];
-        val = (val << 8) | mem[++pos];
-        return val;
+        return (unsigned(mem[pos + 3]) << 24) + (unsigned(mem[pos + 2]) << 16) +
+               (unsigned(mem[pos + 1]) << 8) + unsigned(mem[pos]);
     }
 
 private:
