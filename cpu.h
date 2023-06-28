@@ -17,7 +17,7 @@ public:
     CPU() {
         reorderBuffer.init(&registerFile, &ram);
         reservedStation.init(&reorderBuffer);
-        instructionUnit.init(&reorderBuffer, &reservedStation, &ram);
+        instructionUnit.init(&reorderBuffer, &reservedStation, &ram, &registerFile);
     }
 
     void scan() {

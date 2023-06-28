@@ -9,7 +9,7 @@
 unsigned pc = 0;
 unsigned CDB = 0;
 unsigned nextCDB = 0;
-bool stall = false;
+bool issue_stall = false;
 //global variable
 
 void flushCDB() { CDB = nextCDB; }

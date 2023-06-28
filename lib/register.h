@@ -37,7 +37,9 @@ public:
         }
     }
 
-    [[nodiscard]] bool valid(unsigned id) const { return regs[id].valid; }
+    bool valid(unsigned id) { return regs[id].valid; }
+
+    void read(unsigned id, Register &reg) { reg = regs[id]; }
 
 private:
     Register regs[regSize]{};

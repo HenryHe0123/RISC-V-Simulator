@@ -16,9 +16,13 @@ struct RSEntry {
     InstructionOPT opt = NONE;
     unsigned val1 = 0;
     unsigned val2 = 0;
-    unsigned Q1 = 0; //Q == 0 means value available, else we use tag Q
-    unsigned Q2 = 0;
+    int Q1 = -1; //Q == -1 means value available, else we use tag Q
+    int Q2 = -1;
     int dest = 0; //ROB entry tag
+
+    RSEntry() = default;
+
+    explicit RSEntry(InstructionOPT opt_) : opt(opt_), empty(false) {}
 };
 
 class ReservedStation {

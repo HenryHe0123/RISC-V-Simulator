@@ -10,9 +10,9 @@ struct ROBEntry {
     unsigned dest = 0; //reg index for load/store or ALU operations
     unsigned value = 0; //result value, need compute
     //for BRANCH instruction, dest for predict pc, value for other pc branch
-    //for Store instruction, we would use value for memory address
-    unsigned LS = 0; //for load/store instruction, LS = 2 and every cycle -1
-    //for JALR
+    //for MEM instruction, we would use value for memory address
+    unsigned LS = 0; //for load/store instruction, LS = 3 and every cycle -1
+    //instruction truly ready when ready = true and LS = 0 (register value prepared but not wrote)
 
     [[nodiscard]] inline bool dest_for_reg() const { return OPTtype(opt) == REG || opt <= LHU && opt; }
 
@@ -23,17 +23,30 @@ struct ROBEntry {
     explicit ROBEntry(const Instruction &ins) : opt(ins.opt) { //won't init branch all
         switch (OPTtype(opt)) {
             case NUL:
+                ready = true;
                 break;
             case MEM:
+                LS = 3;
                 if (opt <= LHU) dest = ins.rd; //load
                 else dest = ins.rs2; //store
                 break;
             case BRANCH:
-                LS = 2;
+                //not ready until compare result come out from RS and change predict
                 break;
             case REG:
+                dest = ins.rd;
+                if (opt == JAL) {
+                    value = pc + 4;
+                    ready = true;
+                } else if (opt == JALR) {
+                    value = pc + 4;
+                } else if (opt == LUI) {
+                    value = ins.imm;
+                    ready = true;
+                }
                 break;
             case END:
+                ready = true;
                 break;
         }
     }
@@ -54,7 +67,16 @@ public:
 
     void tryCommit();
 
-    int add(const ROBEntry &entry); //return ROB entry index
+    int add(const ROBEntry &entry) { //return ROB entry index
+        nextBuffer.push_back(entry);
+        return nextBuffer.back_index();
+    }
+
+    inline void pop() { nextBuffer.pop_back(); } //cancel add entry
+
+    inline bool ready(int tag) { return tag >= 0 && buffer[tag].ready && buffer[tag].LS == 0; } //truly ready
+
+    inline void valueRead(int tag, unsigned &uint) { if (tag >= 0) uint = buffer[tag].value; }
 
 private:
     Queue<ROBEntry> buffer;
@@ -81,12 +103,5 @@ void ReorderBuffer::tryCommit() {
     nextBuffer.pop_front();
 }
 
-int ReorderBuffer::add(const ROBEntry &entry) {
-    nextBuffer.push_back(entry);
-    if (OPTtype(entry.opt) == REG) {
-        registerFile->aboutToWrite(entry.dest, nextBuffer.back_index());
-    }
-    return nextBuffer.back_index();
-}
 
 #endif //RISC_V_SIMULATOR_REORDER_BUFFER_H
