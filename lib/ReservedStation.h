@@ -22,6 +22,8 @@ struct RSEntry {
 
     RSEntry() = default;
 
+    [[nodiscard]] inline bool ready() const { return Q1 == -1 && Q2 == -1; }
+
     explicit RSEntry(InstructionOPT opt_) : opt(opt_), empty(false) {}
 };
 

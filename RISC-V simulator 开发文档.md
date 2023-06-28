@@ -8,7 +8,7 @@
 
 #### 主体逻辑说明
 
-**发射(Issue)**
+**发射(Issue|Instruction Unit)**
 
 在issue未stall/halt（halt时检查jalrBus是否在广播）且ROB未满的情况下，由Instruction Unit从RAM中读取指令并调用Decoder解码，向ROB申请新位置。
 
@@ -18,14 +18,16 @@
 
 在发射到RS的过程中，如果发现RS已满，则暂停等待，pop新申请的ROBEntry。
 
-**执行(Execute)**
+**执行(Execute|Reversed Station)**
 
-如果操作数均准备好了，直接执行，可能占用多个时钟周期，如果在同一个时钟周期内有多个指令可以执行，一般策略是随机挑选。如果任一一个操作数没有准备好，监控CDB获取计算好的操作数，**此步骤检查RAW hazard.** 
+检查所有unempty的entry，如果unready就检查接收ROB的CDB（ready本质上是一个Q1&Q2的组合逻辑电路）；如果ready但unbusy就把它推入ALU计算（busy = true）；如果ready and busy意味着计算完成，将计算结果（模拟中真正调用ALU）广播，更新ROB上的value&ready以及可能的predict，并对寄存器类指令修改RS里所有的dependency，特别的，如果是jalr指令，不会发送到ROB上而是会在jalrBus上广播。
 
-对于store指令，此步骤仅仅计算effective address.
+**提交(Commit|Reorder Buffer)**
 
-对于load指令，除了计算effective address，还需要确保当前ROB中的Store指令没有相同的Destination时，才会去内存/cache中读数据，这里避免了针对同一effective address的RAW hazard.
+每次try commit队头最早的指令，
 
-**提交(Commit)**
+若predict = false，全局报错，清空RS&ROB，并修改pc为正确分支，在乱序模拟中要注意pc修改后但RS&ROB未清空前暂停issue；
 
-每次提交一个，对寄存器修改指令，真实修改寄存器并放入
+若ready = false，return等待其ready，若ready = true但LS != 0，LS减1并return，等待其truly ready（硬件上是执行访存操作）；
+
+若ready = true&&LS = 0，正式提交，真实修改Register File或RAM（若是修改Reg还要CDB广播），指令出队，若为HALT指令则修改全局变量结束程序。

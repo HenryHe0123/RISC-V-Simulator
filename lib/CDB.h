@@ -9,6 +9,7 @@
 unsigned pc = 0;
 bool issue_halt = false;
 bool issue_stall = false;
+bool STALL = false;
 //global variable
 
 template<class T>
@@ -33,6 +34,8 @@ public:
 private:
     T next{};
     bool on_nxt = false;
+
+    friend void initCommonData();
 };
 
 struct Pair {
@@ -42,5 +45,14 @@ struct Pair {
 
 Bus<Pair> CDB; //for ROB commit use
 Bus<unsigned> jalrBus; //for jalr(pc) result transition
+
+void initCommonData() {
+    pc = 0;
+    issue_halt = false;
+    issue_stall = false;
+    STALL = false;
+    CDB.on = CDB.on_nxt = false;
+    jalrBus.on = jalrBus.on_nxt = false;
+}
 
 #endif //RISC_V_SIMULATOR_CDB_H

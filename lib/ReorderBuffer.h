@@ -11,7 +11,7 @@ struct ROBEntry {
     unsigned value = 0; //result value, need compute
     //for BRANCH instruction, dest for predict pc, value for other pc branch
     //for MEM instruction, we would use value for memory address
-    unsigned LS = 0; //for load/store instruction, LS = 3 and every cycle -1
+    unsigned LS = 0; //for load/store instruction, LS = 2 and every cycle -1
     //instruction truly ready when ready = true and LS = 0 (register value prepared but not wrote)
 
     [[nodiscard]] inline bool dest_for_reg() const { return OPTtype(opt) == REG || opt <= LHU && opt; }
@@ -26,7 +26,7 @@ struct ROBEntry {
                 ready = true;
                 break;
             case MEM:
-                LS = 3;
+                LS = 2;
                 if (opt <= LHU) dest = ins.rd; //load
                 else dest = ins.rs2; //store
                 break;

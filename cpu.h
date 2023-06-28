@@ -12,9 +12,8 @@ using std::stoi;
 
 class CPU {
 public:
-    unsigned cycle = 0;
-
     CPU() {
+        initCommonData();
         reorderBuffer.init(&registerFile, &ram);
         reservedStation.init(&reorderBuffer);
         instructionUnit.init(&reorderBuffer, &reservedStation, &ram, &registerFile);
@@ -32,17 +31,17 @@ public:
     }
 
     void process() {
-        bool flag = true;
-        while (flag) {
+        while (!STALL) {
+            ++cycle;
             issue();
             execute();
-            flag = commit();
-            ++cycle;
+            commit();
             flush();
         }
     }
 
 private:
+    unsigned cycle = 0;
     RAM ram;
     RegisterFile registerFile;
     InstructionUnit instructionUnit;
@@ -53,7 +52,7 @@ private:
 
     void execute();
 
-    bool commit();
+    void commit();
 
     void flush();
 
