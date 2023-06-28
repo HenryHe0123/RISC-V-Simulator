@@ -42,25 +42,37 @@ private:
 
 void InstructionUnit::issue() {
     if (issue_stall) return;
+    if (issue_halt) {
+        if (jalrBus.on) { //update pc and restart issue
+            jalrBus.read(pc);
+            issue_halt = false;
+        }
+        return;
+    }
     if (ROB->full()) return;
     unsigned ins = ram->readU32(pc); //fetch
     Instruction instruction = Decoder::decode(ins); //decode
     ROBEntry robEntry(instruction);
     RSEntry rsEntry(instruction.opt);
+    unsigned pre_pc = pc; //for recover use
     switch (OPTtype(instruction.opt)) {
         case NUL:
+            pc += 4;
             return; //skip null instruction
         case MEM:
             //value(memory address) = x[rs1] + imm
             rsEntry.dest = ROB->add(robEntry);
             readRSEntryVal1(rsEntry, instruction);
             rsEntry.val2 = instruction.imm;
-            //set dependency
-            if (!RS->addEntry(rsEntry)) { //issue
+            if (!RS->addEntry(rsEntry)) { //try issue
                 ROB->pop(); //RS fulled
-                return;
+                return; //issue false: pc keep unchanged
             }
-            break;
+            //issue success: set dependency if Load
+            if (instruction.opt <= LHU)
+                regs->aboutToWrite(instruction.rd, rsEntry.dest);
+            pc += 4;
+            return;
         case BRANCH:
             //predict true (default)
             robEntry.value = pc + 4;
@@ -71,27 +83,42 @@ void InstructionUnit::issue() {
             readRSEntryVal1(rsEntry, instruction);
             readRSEntryVal2(rsEntry, instruction);
             //no need to set new dependency in BRANCH
-            if (!RS->addEntry(rsEntry)) { //issue
+            if (!RS->addEntry(rsEntry)) { //try issue
                 ROB->pop(); //RS fulled
+                pc = pre_pc; //recover pc
                 return;
             }
-            break;
+            return; //pc update already
         case REG:
             switch (instruction.opt) {
                 case JAL:
-
+                    regs->aboutToWrite(instruction.rd, ROB->add(robEntry));
+                    pc += instruction.imm;
+                    break;
                 case LUI:
-                    ROB->add(robEntry);
+                    regs->aboutToWrite(instruction.rd, ROB->add(robEntry));
+                    pc += 4;
+                    break;
+                case JALR:
+                    rsEntry.dest = ROB->add(robEntry);
+                    readRSEntryVal1(rsEntry, instruction);
+                    rsEntry.val2 = instruction.imm;
+                    if (!RS->addEntry(rsEntry)) { //try issue
+                        ROB->pop(); //RS fulled
+                        return; //issue false: pc keep unchanged
+                    }
+                    //issue success: set dependency and halt issue
+                    regs->aboutToWrite(instruction.rd, rsEntry.dest);
+                    issue_halt = true;
                     break;
                 default:
                     //todo
             }
-            break;
+            return;
         case END:
             ROB->add(robEntry);
+            issue_stall = true;
     }
-
-
 }
 
 #endif //RISC_V_SIMULATOR_INSTRUCTION_UNIT_H

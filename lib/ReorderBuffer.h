@@ -4,7 +4,7 @@
 #include "CDB.h"
 
 struct ROBEntry {
-    bool ready = false;
+    bool ready = false; //turn true when result value come from RS
     bool predict = true; //clear pipeline when commit predict false
     InstructionOPT opt = NONE;
     unsigned dest = 0; //reg index for load/store or ALU operations
