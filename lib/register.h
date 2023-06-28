@@ -6,7 +6,8 @@
 extern const int regSize = 32;
 
 struct Register {
-    unsigned value = 0, tag = -1;
+    unsigned value = 0;
+    int tag = -1;
     bool valid = true;
 
     inline void reset() {
@@ -22,14 +23,14 @@ public:
 
     void clear() { for (auto &r: nextRegs) r.reset(); }
 
-    void write(unsigned id, unsigned val, unsigned dependency = -2) {
+    void write(unsigned id, unsigned val, int dependency = -2) {
         if (id && id < regSize) {
             nextRegs[id].value = val;
             if (nextRegs[id].tag == dependency || dependency == -2) nextRegs[id].valid = true;
         }
     }
 
-    void aboutToWrite(unsigned id, unsigned dependency) {
+    void aboutToWrite(unsigned id, int dependency) {
         if (id && id < regSize) {
             nextRegs[id].valid = false;
             nextRegs[id].tag = dependency;

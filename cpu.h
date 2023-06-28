@@ -1,10 +1,10 @@
 #ifndef RISC_V_SIMULATOR_CPU_H
 #define RISC_V_SIMULATOR_CPU_H
 
-#include "lib/memory.h"
-#include "lib/register.h"
 #include <iostream>
 #include <string>
+#include "lib/CDB.h"
+#include "lib/InstructionUnit.h"
 
 using std::string;
 using std::cin;
@@ -14,7 +14,11 @@ class CPU {
 public:
     unsigned cycle = 0;
 
-    CPU() = default;
+    CPU() {
+        reorderBuffer.init(&registerFile, &ram);
+        reservedStation.init(&reorderBuffer);
+        instructionUnit.init(&reorderBuffer, &reservedStation, &ram);
+    }
 
     void scan() {
         string line;
@@ -40,6 +44,10 @@ public:
 
 private:
     RAM ram;
+    RegisterFile registerFile;
+    InstructionUnit instructionUnit;
+    ReservedStation reservedStation;
+    ReorderBuffer reorderBuffer;
 
     void issue();
 

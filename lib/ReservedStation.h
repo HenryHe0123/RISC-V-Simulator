@@ -2,8 +2,9 @@
 #define RISC_V_SIMULATOR_RESERVED_STATION_H
 
 #include <cstring>
-#include "decoder.h"
+#include "CDB.h"
 #include "ALU.h"
+#include "ReorderBuffer.h"
 
 class ReorderBuffer;
 
@@ -17,14 +18,14 @@ struct RSEntry {
     unsigned val2 = 0;
     unsigned Q1 = 0; //Q == 0 means value available, else we use tag Q
     unsigned Q2 = 0;
-    unsigned dest = 0; //ROB entry tag
+    int dest = 0; //ROB entry tag
 };
 
 class ReservedStation {
 public:
-    void initROB(ReorderBuffer *reorderBuffer = nullptr) { ROB = reorderBuffer; }
+    inline void init(ReorderBuffer *reorderBuffer_ = nullptr) { ROB = reorderBuffer_; }
 
-    void refresh() { memcpy(entries, nextEntries, sizeof(entries)); }
+    inline void refresh() { memcpy(entries, nextEntries, sizeof(entries)); }
 
     void clear() { for (RSEntry &entry: nextEntries) entry.empty = true; }
 

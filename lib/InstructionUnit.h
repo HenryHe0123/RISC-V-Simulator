@@ -1,17 +1,13 @@
 #ifndef RISC_V_SIMULATOR_INSTRUCTION_UNIT_H
 #define RISC_V_SIMULATOR_INSTRUCTION_UNIT_H
 
-#include "decoder.h"
+#include "CDB.h"
+#include "predictor.h"
 #include "ReorderBuffer.h"
 #include "ReservedStation.h"
-#include "memory.h"
 
 class InstructionUnit {
 public:
-    unsigned pc = 0;
-
-    bool stall = false;
-
     inline void init(ReorderBuffer *ROB_, ReservedStation *RS_, RAM *ram_) {
         ROB = ROB_;
         RS = RS_;
@@ -31,7 +27,8 @@ void InstructionUnit::issue() {
     if (ROB->full()) return;
     unsigned ins = ram->readU32(pc); //fetch
     Instruction instruction = Decoder::decode(ins); //decode
-
+    ROBEntry robEntry(instruction);
+    //todo
 }
 
 #endif //RISC_V_SIMULATOR_INSTRUCTION_UNIT_H

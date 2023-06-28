@@ -14,4 +14,5 @@ add_executable(code
         lib/ReorderBuffer.h
         lib/queue.h
         lib/InstructionUnit.h
-        lib/predictor.h)
+        lib/predictor.h
+        lib/CDB.h)

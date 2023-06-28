@@ -84,15 +84,15 @@ public:
         return res;
     }
 
-private:
-    inline static unsigned getPart(unsigned uint, int high, int low) { //0-based
-        return (high == 31) ? uint >> low : (uint & (1u << (high + 1)) - 1) >> low;
-    }
-
     inline static unsigned sext(unsigned uint, int top) { //sign-extend: if top digit 1, add 1
         return (uint & (1 << top)) ? uint | -(1 << top) : uint;
     }
 
+    inline static unsigned getPart(unsigned uint, int high, int low) { //0-based
+        return (high == 31) ? uint >> low : (uint & (1u << (high + 1)) - 1) >> low;
+    }
+
+private:
     enum Type {
         R_type, I_type, S_type, B_type, U_type, J_type, Others
     };
