@@ -111,8 +111,31 @@ void InstructionUnit::issue() {
                     regs->aboutToWrite(instruction.rd, rsEntry.dest);
                     issue_halt = true;
                     break;
-                default:
-                    //todo
+                case AUIPC:
+                    rsEntry.dest = ROB->add(robEntry);
+                    rsEntry.val1 = pc;
+                    rsEntry.val2 = instruction.imm;
+                    if (!RS->addEntry(rsEntry)) { //try issue
+                        ROB->pop(); //RS fulled
+                        return; //issue false: pc keep unchanged
+                    }
+                    //issue success: set dependency and update pc
+                    regs->aboutToWrite(instruction.rd, rsEntry.dest);
+                    pc += 4;
+                    break;
+                default: //I-type or R-type
+                    rsEntry.dest = ROB->add(robEntry);
+                    readRSEntryVal1(rsEntry, instruction);
+                    if (instruction.opt <= SRAI) rsEntry.val2 = instruction.imm; //I
+                    else readRSEntryVal2(rsEntry, instruction); //R
+                    if (!RS->addEntry(rsEntry)) { //try issue
+                        ROB->pop(); //RS fulled
+                        return; //issue false: pc keep unchanged
+                    }
+                    //issue success: set dependency and update pc
+                    regs->aboutToWrite(instruction.rd, rsEntry.dest);
+                    pc += 4;
+                    break;
             }
             return;
         case END:
