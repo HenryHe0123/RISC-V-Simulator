@@ -36,6 +36,7 @@ public:
             instructionUnit.issue();
             reservedStation.execute();
             reorderBuffer.tryCommit();
+            //show_detail();
             flush();
         }
         std::cout << registerFile.a0();
@@ -60,6 +61,12 @@ private:
         reservedStation.refresh();
         reorderBuffer.refresh();
         flushBus();
+    }
+
+    void show_detail() {
+        std::cerr << "cycle " << cycle << '\n';
+        reorderBuffer.show();
+        std::cerr << '\n';
     }
 
 };

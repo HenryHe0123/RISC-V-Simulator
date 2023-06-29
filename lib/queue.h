@@ -40,9 +40,11 @@ public:
 
     class iterator {
     public:
-        T &operator*() { return queue[index]; }
+        iterator(Queue<T, size> *que, int ind) : queue(que), index(ind) {}
 
-        T *operator->() { return &(queue[index]); }
+        T &operator*() { return queue->q[index]; }
+
+        T *operator->() { return queue->q + index; }
 
         iterator &operator++() {
             index = next(index);
@@ -71,8 +73,6 @@ public:
         bool operator!=(const iterator &rhs) const { return queue != rhs.queue || index != rhs.index; }
 
     private:
-        iterator(Queue<T, size> *que, int ind) : queue(que), index(ind) {}
-
         Queue<T, size> *queue = nullptr;
         int index = 0;
     };
@@ -88,6 +88,8 @@ private:
     inline static int pre(int i) { return (i - 1 + size) % size; }
 
     inline static int next(int i) { return (i + 1) % size; }
+
+    friend class Queue::iterator;
 };
 
 #endif //RISC_V_SIMULATOR_QUEUE_H

@@ -50,6 +50,10 @@ struct ROBEntry {
                 break;
         }
     }
+
+    void show() const {
+        std::cerr << "ROBEntry: opt" << opt << ", dest" << dest << '\n';
+    } //for debug
 };
 
 class ReorderBuffer {
@@ -81,6 +85,11 @@ public:
     inline ROBEntry &visitCur(int tag) { return buffer[tag]; }
 
     inline ROBEntry &visitNxt(int tag) { return nextBuffer[tag]; }
+
+    void show() {
+        std::cerr << "ROB curBuffer:\n";
+        for (auto &entry: buffer) entry.show();
+    } //for debug
 
 private:
     Queue<ROBEntry> buffer;
