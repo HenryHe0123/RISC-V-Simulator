@@ -31,13 +31,14 @@ public:
     }
 
     void process() {
-        while (!STALL) {
+        while (!STALL && cycle < 30000000) {
             ++cycle;
-            issue();
-            execute();
-            commit();
+            instructionUnit.issue();
+            reservedStation.execute();
+            reorderBuffer.tryCommit();
             flush();
         }
+        std::cout << registerFile.a0();
     }
 
 private:
@@ -48,13 +49,18 @@ private:
     ReservedStation reservedStation;
     ReorderBuffer reorderBuffer;
 
-    void issue();
-
-    void execute();
-
-    void commit();
-
-    void flush();
+    void flush() {
+        if (predictBus.on) { //predict false
+            registerFile.clear();
+            reservedStation.clear();
+            reorderBuffer.clear();
+            pc = predictBus.cur;
+        }
+        registerFile.refresh();
+        reservedStation.refresh();
+        reorderBuffer.refresh();
+        flushBus();
+    }
 
 };
 

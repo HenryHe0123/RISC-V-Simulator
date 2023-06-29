@@ -91,20 +91,60 @@ private:
 
 void ReorderBuffer::tryCommit() {
     if (buffer.empty()) return;
-    if (!buffer.front().ready) return;
-    switch (OPTtype(buffer.front().opt)) {
-        case InstructionType::MEM:
-            break;
-        case InstructionType::BRANCH:
-            break;
-        case InstructionType::REG:
-            break;
-        case InstructionType::END:
-            break;
-        default: //NUL
-            throw 0;
+    const ROBEntry &entry = buffer.front();
+    if (!entry.ready) return; //wait until ready
+    if (entry.LS) {
+        --nextBuffer.front().LS; //wait until RAM visit finished
+        return;
     }
-    nextBuffer.pop_front();
+    //now we prepare to commit
+    if (entry.opt) { //do nothing if NONE (error actually)
+        if (entry.opt <= LHU) { //LOAD
+            unsigned value = ram->readU32(entry.value);
+            switch (entry.opt) {
+                case LB:
+                    value = Decoder::getPart(value, 7, 0);
+                    value = Decoder::sext(value, 7);
+                    break;
+                case LH:
+                    value = Decoder::getPart(value, 15, 0);
+                    value = Decoder::sext(value, 15);
+                    break;
+                case LW:
+                    value = Decoder::getPart(value, 31, 0);
+                    value = Decoder::sext(value, 31);
+                    break;
+                case LBU:
+                    value = Decoder::getPart(value, 7, 0);
+                    break;
+                case LHU:
+                    value = Decoder::getPart(value, 15, 0);
+                    break;
+                default:
+                    throw std::exception();
+            }
+            //now value available
+            registerFile->write(entry.dest, value, buffer.front_index());
+            CDB.broadcast(Pair{buffer.front_index(), value});
+        } else if (entry.opt <= SW) { //STORE
+            unsigned storeVal = registerFile->regs[entry.dest].value;
+            int highBit = 31; //SW
+            if (entry.opt == SB) highBit = 7;
+            if (entry.opt == SH) highBit = 15;
+            storeVal = Decoder::getPart(storeVal, highBit, 0);
+            ram->writeU32(entry.value, storeVal);
+        } else if (entry.opt <= BGEU) { //BRANCH
+            if (!entry.predict) { //predict false
+                predictBus.broadcast(entry.value); //other(correct) pc branch
+            }
+        } else if (entry.opt <= AND) { //REG
+            registerFile->write(entry.dest, entry.value, buffer.front_index());
+            CDB.broadcast(Pair{buffer.front_index(), entry.value});
+        } else { //HALT
+            STALL = true;
+        }
+    }
+    nextBuffer.pop_front(); //commit
 }
 
 

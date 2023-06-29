@@ -26,7 +26,7 @@
 
 每次try commit队头最早的指令，
 
-若predict = false，全局报错，清空RS&ROB，并修改pc为正确分支，在乱序模拟中要注意pc修改后但RS&ROB未清空前暂停issue；
+若predict = false（此时应该已经ready），全局报错（广播predictBus并立刻刷新），在当前周期结束flush时清空RS&ROB以及Register的dependency（其实是清空并刷新），修改pc为正确分支，重新开始；
 
 若ready = false，return等待其ready，若ready = true但LS != 0，LS减1并return，等待其truly ready（硬件上是执行访存操作）；
 

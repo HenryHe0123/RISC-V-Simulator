@@ -43,12 +43,20 @@ struct Pair {
 
 Bus<Pair> CDB; //for ROB commit use
 Bus<unsigned> jalrBus; //for jalr(pc) result transition
+Bus<unsigned> predictBus; //broadcast correct pc for predict false
 
 void initCommonData() {
     pc = 0;
     STALL = false;
     CDB.on = CDB.on_nxt = false;
     jalrBus.on = jalrBus.on_nxt = false;
+    predictBus.on = predictBus.on = false;
+}
+
+void flushBus() {
+    CDB.flush();
+    jalrBus.flush();
+    predictBus.flush();
 }
 
 #endif //RISC_V_SIMULATOR_CDB_H

@@ -18,6 +18,16 @@ public:
                (unsigned(mem[pos + 1]) << 8) + unsigned(mem[pos]);
     }
 
+    inline void writeU32(unsigned pos, unsigned val) {
+        mem[pos++] = uint8_t(val);
+        val >>= 8;
+        mem[pos++] = uint8_t(val);
+        val >>= 8;
+        mem[pos++] = uint8_t(val);
+        val >>= 8;
+        mem[pos] = uint8_t(val);
+    }
+
 private:
     uint8_t mem[N]{0};
 };
