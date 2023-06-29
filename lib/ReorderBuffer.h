@@ -78,6 +78,10 @@ public:
 
     inline void valueRead(int tag, unsigned &uint) { if (tag >= 0) uint = buffer[tag].value; }
 
+    inline ROBEntry &visitCur(int tag) { return buffer[tag]; }
+
+    inline ROBEntry &visitNxt(int tag) { return nextBuffer[tag]; }
+
 private:
     Queue<ROBEntry> buffer;
     Queue<ROBEntry> nextBuffer;

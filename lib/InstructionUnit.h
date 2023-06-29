@@ -22,6 +22,8 @@ private:
     ReservedStation *RS = nullptr;
     RAM *ram = nullptr;
     RegisterFile *regs = nullptr;
+    bool issue_halt = false;
+    bool issue_stall = false;
 
     inline void readRSEntryVal1(RSEntry &rsEntry, const Instruction &instruction) {
         Register tmp;
