@@ -15,6 +15,8 @@ public:
         regs = regs_;
     }
 
+    inline void reset() { issue_halt = issue_stall = false; }
+
     void issue();
 
 private:

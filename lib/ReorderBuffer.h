@@ -145,6 +145,7 @@ void ReorderBuffer::tryCommit() {
         } else if (entry.opt <= BGEU) { //BRANCH
             if (!entry.predict) { //predict false
                 predictBus.broadcast(entry.value); //other(correct) pc branch
+                predictBus.flush(); //flush immediately
             }
         } else if (entry.opt <= AND) { //REG
             registerFile->write(entry.dest, entry.value, buffer.front_index());

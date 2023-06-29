@@ -1,10 +1,12 @@
 ### RISC-V simulator
 
+------
+
 #### Tomasulo 算法
 
-<img src="C:\Users\HONOR\Downloads\OoO.jpeg" alt="OoO" style="zoom: 50%;" />
+<img src="OoO.jpeg" alt="OoO" style="zoom:40%;" />
 
-<img src="C:\Users\HONOR\Downloads\Arch.jpeg" alt="Arch" style="zoom:80%;" />
+<img src="Arch.jpeg" alt="Arch" style="zoom:75%;" />
 
 #### 主体逻辑说明
 
@@ -20,14 +22,14 @@
 
 **执行(Execute|Reversed Station)**
 
-检查所有unempty的entry，如果unready就检查接收ROB的CDB（ready本质上是一个Q1&Q2的组合逻辑电路）；如果ready但unbusy就把它推入ALU计算（busy = true）；如果ready and busy意味着计算完成，将计算结果（模拟中真正调用ALU）广播，更新ROB上的value&ready以及可能的predict，并对寄存器类指令修改RS里所有的dependency，特别的，如果是jalr指令，不会发送到ROB上而是会在jalrBus上广播。
+检查所有unempty的entry，如果unready就检查接收ROB的CDB（ready本质上是一个Q1&Q2的组合逻辑电路）；如果ready但unbusy就把它推入ALU计算（busy = true）；如果ready and busy意味着计算完成，将计算结果（模拟中真正调用ALU）广播，更新ROB上的value&ready以及可能的predict，并对寄存器类指令修改RS里所有的dependency，特别的，如果是jalr指令，更新ROB的ready并在jalrBus上广播。
 
 **提交(Commit|Reorder Buffer)**
 
 每次try commit队头最早的指令，
 
-若predict = false（此时应该已经ready），全局报错（广播predictBus并立刻刷新），在当前周期结束flush时清空RS&ROB以及Register的dependency（其实是清空并刷新），修改pc为正确分支，重新开始；
+若predict = false（此时应该已经ready），全局报错（广播predictBus**并立刻刷新**），在当前周期结束flush时清空RS&ROB以及Register的dependency（其实是清空并刷新），修改pc为正确分支，重新开始（注意如果此时若issue halt/stall则要reset）；
 
-若ready = false，return等待其ready，若ready = true但LS != 0，LS减1并return，等待其truly ready（硬件上是执行访存操作）；
+若ready = false，return等待其ready，若ready = true但LS不为0，LS减1并return，等待其truly ready（硬件上是执行访存操作）；
 
 若ready = true&&LS = 0，正式提交，真实修改Register File或RAM（若是修改Reg还要CDB广播），指令出队，若为HALT指令则修改全局变量结束程序。

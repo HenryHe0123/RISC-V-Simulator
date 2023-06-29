@@ -105,6 +105,7 @@ void ReservedStation::sendResToROB(int dest, unsigned int res) {
     const ROBEntry &cur = ROB->visitCur(dest);
     ROBEntry &nxt = ROB->visitNxt(dest);
     if (cur.opt == JALR) {
+        nxt.ready = true;
         jalrBus.broadcast(res);
         return;
     }

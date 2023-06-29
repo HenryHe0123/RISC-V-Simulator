@@ -31,7 +31,7 @@ public:
     }
 
     void process() {
-        while (!STALL && cycle < 30000000) {
+        while (!STALL && cycle < 3000000) {
             ++cycle;
             instructionUnit.issue();
             reservedStation.execute();
@@ -39,6 +39,7 @@ public:
             //show_detail();
             flush();
         }
+        //show_detail();
         std::cout << int(registerFile.a0());
     }
 
@@ -55,6 +56,7 @@ private:
             registerFile.clear();
             reservedStation.clear();
             reorderBuffer.clear();
+            instructionUnit.reset();
             pc = predictBus.cur;
         }
         registerFile.refresh();
