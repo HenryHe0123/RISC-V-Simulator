@@ -1,4 +1,4 @@
-### RISC-V simulator 开发文档
+### RISC-V simulator
 
 #### Tomasulo 算法
 

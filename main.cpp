@@ -3,7 +3,7 @@
 CPU cpu;
 
 int main() {
-    //freopen("sample.data", "r", stdin);
+    //freopen("../sample/sample.data", "r", stdin);
     cpu.scan();
     cpu.process();
     return 0;

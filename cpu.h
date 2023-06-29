@@ -39,7 +39,7 @@ public:
             //show_detail();
             flush();
         }
-        std::cout << registerFile.a0();
+        std::cout << int(registerFile.a0());
     }
 
 private:
