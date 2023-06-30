@@ -5,7 +5,8 @@
 
 struct ROBEntry {
     bool ready = false; //turn true when result value come from RS
-    bool predict = true; //clear pipeline when commit predict false
+    bool predict_accurate = true; //clear pipeline when commit predict false
+    bool predict = true; //predict result for BRANCH instruction
     InstructionOPT opt = NONE;
     unsigned dest = 0; //reg index for load/store or ALU operations
     unsigned value = 0; //result value, need compute
@@ -13,6 +14,7 @@ struct ROBEntry {
     //for MEM instruction, we would use value for memory address
     unsigned LS = 0; //for load/store instruction, LS = 2 and every cycle -1
     //instruction truly ready when ready = true and LS = 0 (register value prepared but not wrote)
+    unsigned uhash = 0; //hash value of source instruction code
 
     [[nodiscard]] inline bool dest_for_reg() const { return OPTtype(opt) == REG || opt <= LHU && opt; }
 
@@ -20,7 +22,7 @@ struct ROBEntry {
 
     ROBEntry() = default;
 
-    explicit ROBEntry(const Instruction &ins) : opt(ins.opt) { //won't init branch all
+    explicit ROBEntry(const Instruction &ins) : opt(ins.opt), uhash(hash(ins.src)) {
         switch (OPTtype(opt)) {
             case NUL:
                 ready = true;
@@ -31,7 +33,7 @@ struct ROBEntry {
                 else dest = ins.rs2; //store
                 break;
             case BRANCH:
-                //not ready until compare result come out from RS and change predict
+                //not ready until compare result come out from RS and change predict_accurate
                 break;
             case REG:
                 dest = ins.rd;
@@ -92,7 +94,7 @@ public:
         std::cerr << "wait_time:" << wait_time << '\n';
     } //for debug
 
-    [[nodiscard]] double predict_true_probability() const {
+    [[nodiscard]] double predict_accuracy() const {
         int tot = predict_true_time + predict_false_time;
         if (tot) return double(predict_true_time) / tot;
         else return 1;
@@ -129,6 +131,12 @@ private:
                 return;
         }
         entry.value = value;
+    }
+
+    static void updatePredictor(const ROBEntry &entry) {
+        if (OPTtype(entry.opt) != BRANCH) return;
+        bool ans = (entry.predict_accurate == entry.predict);
+        predictor.update(entry.uhash, ans);
     }
 
     int wait_time = 0;
@@ -168,11 +176,12 @@ void ReorderBuffer::tryCommit() {
             storeVal = Decoder::getPart(storeVal, highBit, 0);
             ram->writeU32(entry.value, storeVal);
         } else if (entry.opt <= BGEU) { //BRANCH
-            if (!entry.predict) { //predict false
+            if (!entry.predict_accurate) { //predict wrong
                 predictBus.broadcast(entry.value); //other(correct) pc branch
                 predictBus.flush(); //flush immediately
                 ++predict_false_time;
             } else ++predict_true_time;
+            updatePredictor(entry);
         } else if (entry.opt <= AND) { //REG
             registerFile->write(entry.dest, entry.value, buffer.front_index());
             CDB.broadcast(Pair{buffer.front_index(), entry.value});

@@ -35,9 +35,9 @@ public:
     void process() {
         static int a[3] = {0, 1, 2};
         cycle = 0;
-        srand(time(nullptr));
+        srand(time(nullptr)); // NOLINT
         while (!STALL && cycle++ < 200000000) {
-            std::random_shuffle(a, a + 3);
+            std::random_shuffle(a, a + 3); // NOLINT
             for (int i: a) {
                 if (i == 0) instructionUnit.issue();
                 if (i == 1) reservedStation.execute();
@@ -48,7 +48,8 @@ public:
         }
         //show_detail();
         std::cout << int(registerFile.a0()) << '\n';
-        std::cerr << "predict true probability: " << reorderBuffer.predict_true_probability() << '\n';
+        std::cerr << "total cpu cycle: " << cycle << '\n'
+                  << "predict accuracy: " << reorderBuffer.predict_accuracy() * 100 << "%\n";
     }
 
 private:

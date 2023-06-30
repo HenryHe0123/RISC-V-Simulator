@@ -2,7 +2,6 @@
 #define RISC_V_SIMULATOR_INSTRUCTION_UNIT_H
 
 #include "CDB.h"
-#include "predictor.h"
 #include "ReorderBuffer.h"
 #include "ReservedStation.h"
 
@@ -78,10 +77,16 @@ void InstructionUnit::issue() {
             pc += 4;
             return;
         case BRANCH:
-            //predict true (default)
-            robEntry.value = pc + 4;
-            pc += instruction.imm;
-            robEntry.dest = pc;
+            robEntry.predict = predictor.predict(instruction);
+            if (robEntry.predict) { //predict true (default)
+                robEntry.value = pc + 4;
+                pc += instruction.imm;
+                robEntry.dest = pc;
+            } else { //predict false
+                robEntry.value = pc + instruction.imm;
+                pc += 4;
+                robEntry.dest = pc;
+            }
             //now prepare to issue RSEntry
             rsEntry.dest = ROB->add(robEntry);
             readRSEntryVal1(rsEntry, instruction);

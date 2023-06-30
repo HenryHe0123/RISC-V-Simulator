@@ -28,7 +28,7 @@
 
 每次try commit队头最早的指令，
 
-若predict = false（此时应该已经ready），全局报错（广播predictBus**并立刻刷新**），在当前周期结束flush时清空RS&ROB以及Register的dependency（其实是清空并刷新），修改pc为正确分支，重新开始（注意如果此时若issue halt/stall则要reset）；
+若predict_accuracy = false（此时应该已经ready），全局报错（广播predictBus**并立刻刷新**），在当前周期结束flush时清空RS&ROB以及Register的dependency（其实是清空并刷新），修改pc为正确分支，重新开始（注意如果此时若issue halt/stall则要reset）；
 
 若ready = false，return等待ready；若ready = true但LS不为0，LS减1，对于Load操作，若现在truly ready，则**立刻执行访存操作**；
 

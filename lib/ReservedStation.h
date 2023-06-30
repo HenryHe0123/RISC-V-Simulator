@@ -116,7 +116,7 @@ void ReservedStation::sendResToROB(int dest, unsigned int res) {
             nxt.value = res; //memory address
             break;
         case BRANCH:
-            nxt.predict = res;
+            nxt.predict_accurate = (res == cur.predict);
             break;
         case REG: //not jump now
             nxt.value = res; //register value

@@ -5,9 +5,11 @@
 #include "decoder.h"
 #include "memory.h"
 #include "register.h"
+#include "predictor.h"
 
 unsigned pc = 0;
 bool STALL = false;
+Predictor predictor;
 //global variable
 
 template<class T>
@@ -51,6 +53,7 @@ void initCommonData() {
     CDB.on = CDB.on_nxt = false;
     jalrBus.on = jalrBus.on_nxt = false;
     predictBus.on = predictBus.on = false;
+    predictor.init();
 }
 
 void flushBus() {
