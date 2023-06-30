@@ -2,7 +2,9 @@
 #define RISC_V_SIMULATOR_CPU_H
 
 #include <iostream>
+#include <random>
 #include <string>
+#include <algorithm>
 #include "lib/CDB.h"
 #include "lib/InstructionUnit.h"
 
@@ -31,11 +33,16 @@ public:
     }
 
     void process() {
-        while (!STALL && cycle < 200000000) {
-            ++cycle;
-            instructionUnit.issue();
-            reservedStation.execute();
-            reorderBuffer.tryCommit();
+        cycle = 0;
+        int a[3] = {0, 1, 2};
+        srand(time(nullptr) * 20040301);
+        while (!STALL && cycle++ < 200000000) {
+            std::shuffle(a, a + 3, std::mt19937(std::random_device()()));
+            for (int i: a) {
+                if (i == 0) instructionUnit.issue();
+                if (i == 1) reservedStation.execute();
+                if (i == 2) reorderBuffer.tryCommit();
+            }
             //show_detail();
             flush();
         }
