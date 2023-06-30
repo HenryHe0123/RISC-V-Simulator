@@ -33,11 +33,11 @@ public:
     }
 
     void process() {
+        static int a[3] = {0, 1, 2};
         cycle = 0;
-        int a[3] = {0, 1, 2};
-        srand(time(nullptr) * 20040301);
+        srand(time(nullptr));
         while (!STALL && cycle++ < 200000000) {
-            std::shuffle(a, a + 3, std::mt19937(std::random_device()()));
+            std::random_shuffle(a, a + 3);
             for (int i: a) {
                 if (i == 0) instructionUnit.issue();
                 if (i == 1) reservedStation.execute();
@@ -47,7 +47,8 @@ public:
             flush();
         }
         //show_detail();
-        std::cout << int(registerFile.a0());
+        std::cout << int(registerFile.a0()) << '\n';
+        std::cerr << "predict true probability: " << reorderBuffer.predict_true_probability() << '\n';
     }
 
 private:

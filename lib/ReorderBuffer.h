@@ -89,7 +89,14 @@ public:
     void show() {
         std::cerr << "ROB curBuffer:\n";
         for (auto &entry: buffer) entry.show();
+        std::cerr << "wait_time:" << wait_time << '\n';
     } //for debug
+
+    [[nodiscard]] double predict_true_probability() const {
+        int tot = predict_true_time + predict_false_time;
+        if (tot) return double(predict_true_time) / tot;
+        else return 1;
+    }
 
 private:
     Queue<ROBEntry> buffer;
@@ -123,17 +130,28 @@ private:
         }
         entry.value = value;
     }
+
+    int wait_time = 0;
+    int predict_false_time = 0;
+    int predict_true_time = 0;
 };
 
 void ReorderBuffer::tryCommit() {
-    if (buffer.empty()) return;
+    if (buffer.empty()) {
+        ++wait_time;
+        return;
+    }
     const ROBEntry &entry = buffer.front();
-    if (!entry.ready) return; //wait until ready
+    if (!entry.ready) {
+        ++wait_time;
+        return; //wait until ready
+    }
     if (entry.LS) {
         --nextBuffer.front().LS; //wait until RAM visit finished
         if (nextBuffer.front().LS == 0 && entry.opt <= LHU && entry.opt) {
             executeLoad(nextBuffer.front()); //execute LOAD instruction immediately
         }
+        ++wait_time;
         return;
     }
     //now we prepare to commit
@@ -153,7 +171,8 @@ void ReorderBuffer::tryCommit() {
             if (!entry.predict) { //predict false
                 predictBus.broadcast(entry.value); //other(correct) pc branch
                 predictBus.flush(); //flush immediately
-            }
+                ++predict_false_time;
+            } else ++predict_true_time;
         } else if (entry.opt <= AND) { //REG
             registerFile->write(entry.dest, entry.value, buffer.front_index());
             CDB.broadcast(Pair{buffer.front_index(), entry.value});
