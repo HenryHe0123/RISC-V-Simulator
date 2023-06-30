@@ -30,6 +30,6 @@
 
 若predict = false（此时应该已经ready），全局报错（广播predictBus**并立刻刷新**），在当前周期结束flush时清空RS&ROB以及Register的dependency（其实是清空并刷新），修改pc为正确分支，重新开始（注意如果此时若issue halt/stall则要reset）；
 
-若ready = false，return等待其ready，若ready = true但LS不为0，LS减1并return，等待其truly ready（硬件上是执行访存操作）；
+若ready = false，return等待ready；若ready = true但LS不为0，LS减1，对于Load操作，若现在truly ready，则**立刻执行访存操作**；
 
 若ready = true&&LS = 0，正式提交，真实修改Register File或RAM（若是修改Reg还要CDB广播），指令出队，若为HALT指令则修改全局变量结束程序。

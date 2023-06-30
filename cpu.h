@@ -31,7 +31,7 @@ public:
     }
 
     void process() {
-        while (!STALL && cycle < 3000000) {
+        while (!STALL && cycle < 200000000) {
             ++cycle;
             instructionUnit.issue();
             reservedStation.execute();
