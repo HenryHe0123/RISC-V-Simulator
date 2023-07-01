@@ -9,7 +9,7 @@
 
 unsigned pc = 0;
 bool STALL = false;
-Predictor predictor;
+AdaptiveTwoLevalPredictor predictor;
 //global variable
 
 template<class T>
