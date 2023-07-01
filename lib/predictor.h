@@ -91,7 +91,7 @@ private: //only allow IU and ROB visit
     friend class ReorderBuffer;
 }; //one-leval predictor
 
-class AdaptiveTwoLevalPredictor : Predictor { //8KB
+class AdaptiveTwoLevalPredictor : Predictor { //10KB
 public:
     void init() override {
         for (auto &r: BHR) memset(r.p, 0, sizeof(r.p));
