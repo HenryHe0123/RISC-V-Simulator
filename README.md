@@ -4,7 +4,7 @@
 
 ### 模拟架构图
 
-<img src="E:\c++\ACM Class\PPCA\RISC-V-simulator\Arch.jpeg" alt="Arch" style="zoom:60%;" />
+<img src="Arch.jpeg" alt="Arch" style="zoom:60%;" />
 
 其中，P代表Predictor，IU代表Instruction Unit，RS代表Reversed Station，ROB代表Reorder Buffer，CDB代表Common Data Bus，黑色箭头方向代表一方有权对另一方进行访问修改或发送数据。反之如ROB没有到RS的黑色箭头，则代表ROB并不能直接修改RS，但这其实可以迂回地通过CDB广播来实现，CDB（不只一个）可以认为是被IU/RS/ROB共享的全局变量。
 
